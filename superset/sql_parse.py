@@ -45,7 +45,7 @@ def _extract_limit_from_query(statement: TokenList) -> Optional[int]:
     :param statement: SQL statement
     :return: Limit extracted from query, None if no limit present in statement
     """
-    idx, _ = statement.token_next_by(m=(Keyword, "LIMIT"))
+    idx, _ = statement.token_next_by(m=(Keyword, "FIRST"))
     if idx is not None:
         _, token = statement.token_next(idx=idx)
         if token:
@@ -263,12 +263,12 @@ class ParsedQuery:
         :return: The original query with new limit
         """
         if not self._limit:
-            return f"{self.stripped()}\nLIMIT {new_limit}"
+            return f"{self.stripped()}\nFETCH FIRST {new_limit} ROWS ONLY"
         limit_pos = None
         statement = self._parsed[0]
         # Add all items to before_str until there is a limit
         for pos, item in enumerate(statement.tokens):
-            if item.ttype in Keyword and item.value.lower() == "limit":
+            if item.ttype in Keyword and item.value.lower() == "first":
                 limit_pos = pos
                 break
         _, limit = statement.token_next(idx=limit_pos)
